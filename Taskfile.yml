@@ -1,0 +1,32 @@
+test:
+  cmds:
+    - go test -race -cover ./...
+
+cover:
+  cmds:
+    - mkdir -p {{.DIR_REPORTS}}
+    - gocov test ./... | gocov-html > {{.DIR_REPORTS}}/report-cover.html
+    - '{{if eq OS "windows"}}cmd /k "start {{.DIR_REPORTS}}/report-cover.html"{{else if eq OS "darwin"}}open {{.DIR_REPORTS}}/report-cover.html{{else}}xdg-open {{.DIR_REPORTS}}/report-cover.html{{end}}'
+
+test-ci:
+  cmds:
+    - mkdir -p {{.DIR_REPORTS}}
+    - go test -v ./... 2>&1 | go-junit-report > {{.DIR_REPORTS}}/report-junit.xml
+
+cover-ci:
+  cmds:
+    - mkdir -p {{.DIR_REPORTS}}
+    - gocov test ./... | gocov-xml > {{.DIR_REPORTS}}/report-cobertura.xml
+
+docker:
+  cmds:
+    - docker pull golang:alpine
+    - docker-compose build
+    - docker-compose run {{.SERVICE}}
+    - docker-compose down
+    - docker image prune -f
+
+mock:
+  cmds:
+    - mkdir -p tests/mocks
+    - mockgen -destination=tests/mocks/icrypt.go -package=lxGoLibMocks github.com/litixsoft/lx-golib/crypt ICrypt

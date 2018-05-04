@@ -1,0 +1,2 @@
+DIR_REPORTS: './build/reports'
+SERVICE: 'lx_golib'
