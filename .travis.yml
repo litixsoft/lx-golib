@@ -11,5 +11,7 @@ before_install:
 script:
   - go env
   - go version
-  - docker ps
   - ls -la
+  - docker-compose build
+  - docker-compose run lx_golib
+  - docker-compose down
