@@ -2,6 +2,10 @@ test:
   cmds:
     - go test -race -cover ./...
 
+test-v:
+  cmds:
+    - go test -race -cover -v ./...
+
 cover:
   cmds:
     - mkdir -p {{.DIR_REPORTS}}
