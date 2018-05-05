@@ -1,0 +1,19 @@
+version: '3'
+services:
+  lx_golib:
+    image: golang:alpine
+    volumes:
+      - ../:/go/src/github.com/litixsoft/lx-golib
+    working_dir: /go/src/github.com/litixsoft/lx-golib
+    environment:
+      DBHOST: "lx_golib_mongodb"
+    links:
+      - lx_golib_mongodb
+    depends_on:
+      - lx_golib_mongodb
+    command: /bin/sh -c "go version && go env && pwd && ls -la && go test -v -cover ./..."
+  lx_golib_mongodb:
+    image: mongo:latest
+    ports:
+      - 27030:27017
+    command: mongod --smallfiles --logpath=/dev/null # --quiet

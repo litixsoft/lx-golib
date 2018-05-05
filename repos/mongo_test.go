@@ -4,13 +4,13 @@ import (
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"log"
-	"os"
 	"io/ioutil"
 	"encoding/json"
 	"testing"
 	"github.com/litixsoft/lx-golib/repos"
 	"github.com/smartystreets/goconvey/convey"
 	"sort"
+	"os"
 )
 
 // TestUser, struct for test users
@@ -27,11 +27,18 @@ const (
 	Coll = "users"
 )
 
-var (
-	dbHost string
-)
-
 func getConn () *mgo.Session {
+
+	// Check DbHost environment
+	dbHost := os.Getenv("DBHOST")
+
+	// When not defined set default host
+	if dbHost == "" {
+		dbHost = "localhost:27017"
+	}
+
+	log.Println("DBHOST:", dbHost)
+
 	// Create new connection
 	conn, err := mgo.Dial(dbHost)
 	if err != nil {
@@ -93,15 +100,16 @@ func setupData(conn *mgo.Session) []TestUser {
 }
 
 // init, run before tests starts
-func init() {
-	// Check DbHost environment
-	dbHost := os.Getenv("DBHOST")
-
-	// When not defined set default host
-	if dbHost == "" {
-		dbHost = "mongodb://localhost:27017"
-	}
-}
+//func init() {
+//	// Check DbHost environment
+//	dbHost := os.Getenv("DBHOST")
+//	log.Println("Chk DBHOST:", dbHost)
+//
+//	// When not defined set default host
+//	if dbHost == "" {
+//		dbHost = "mongodb://localhost:27017"
+//	}
+//}
 
 func TestMongoDb_Create(t *testing.T) {
 	conn := getConn()

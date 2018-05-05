@@ -25,9 +25,9 @@ cover-ci:
 docker:
   cmds:
     - docker pull golang:alpine
-    - docker-compose build
-    - docker-compose run {{.SERVICE}}
-    - docker-compose down
+    - docker pull mongo:latest
+    - docker-compose -f {{.SINGLE_LATEST}} run {{.SERVICE}}
+    - docker-compose -f {{.SINGLE_LATEST}} down
     - docker image prune -f
 
 mock:

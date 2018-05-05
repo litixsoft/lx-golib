@@ -10,7 +10,6 @@ before_install:
 - docker pull mongo:latest
 
 script:
-  - docker-compose build
-  - docker-compose run lx_golib
-  - docker-compose down
+  - docker-compose -f ./build/single_latest.yml run lx_golib
+  - docker-compose -f ./build/single_latest.yml down
   - docker image prune -f
