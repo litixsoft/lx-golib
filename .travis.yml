@@ -2,16 +2,15 @@ sudo: required
 
 services:
   - docker
-  
+
 -language: go
 
 before_install:
 - docker pull golang:alpine
+- docker pull mongo:latest
 
 script:
-  - go env
-  - go version
-  - ls -la
   - docker-compose build
   - docker-compose run lx_golib
   - docker-compose down
+  - docker image prune -f
