@@ -11,3 +11,5 @@ before_install:
 script:
   - go env
   - go version
+  - docker ps
+  - ls -la
