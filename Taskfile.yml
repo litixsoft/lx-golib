@@ -34,3 +34,4 @@ mock:
   cmds:
     - mkdir -p tests/mocks
     - mockgen -destination=tests/mocks/icrypt.go -package=lxGoLibMocks github.com/litixsoft/lx-golib/crypt ICrypt
+    - mockgen -destination=tests/mocks/idatabase.go -package=lxGoLibMocks github.com/litixsoft/lx-golib/db IDatabase

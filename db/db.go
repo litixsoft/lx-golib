@@ -1,4 +1,4 @@
-package lxBaseRepo
+package lxDb
 
 // ChangeInfo holds details about the outcome of an update operation.
 type ChangeInfo struct {
@@ -14,7 +14,7 @@ type Options struct {
 }
 
 // Base interface
-type IBase interface {
+type IDatabase interface {
 	Create(data interface{}) error
 	GetAll(query interface{}, result interface{}, opts *Options) (int, error)
 	GetCount(query interface{}) (int, error)

@@ -1,4 +1,4 @@
-package lxBaseRepo_test
+package lxDb_test
 
 import (
 	"github.com/globalsign/mgo"
@@ -7,10 +7,10 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"testing"
-	"github.com/litixsoft/lx-golib/repos"
 	"github.com/smartystreets/goconvey/convey"
 	"sort"
 	"os"
+	"github.com/litixsoft/lx-golib/db"
 )
 
 // TestUser, struct for test users
@@ -99,38 +99,26 @@ func setupData(conn *mgo.Session) []TestUser {
 	return users
 }
 
-// init, run before tests starts
-//func init() {
-//	// Check DbHost environment
-//	dbHost := os.Getenv("DBHOST")
-//	log.Println("Chk DBHOST:", dbHost)
-//
-//	// When not defined set default host
-//	if dbHost == "" {
-//		dbHost = "mongodb://localhost:27017"
-//	}
-//}
-
 func TestMongoDb_Create(t *testing.T) {
 	conn := getConn()
 	defer conn.Close()
 
 	// Tests
-	rm := &lxBaseRepo.MongoDb{
-		Conn: conn,
-		Db:   Db,
-		Coll: Coll,
+	db := &lxDb.MongoDb{
+		Connection: conn,
+		Name:   Db,
+		Collection: Coll,
 	}
 
 	convey.Convey("Given a new user should be stored in the database", t, func() {
 		convey.Convey("When create a correct new user", func() {
 			tu := TestUser{Id: bson.NewObjectId(), Name: "Test User",Gender:"Male", Email: "t.user@gmail.com", IsActive:true}
-			err := rm.Create(tu)
+			err := db.Create(tu)
 			convey.So(err, convey.ShouldBeNil)
 
 			convey.Convey("Then this user should be found in the database", func() {
 				var chkResult TestUser
-				err := rm.Conn.DB(rm.Db).C(rm.Coll).Find(bson.M{"_id": tu.Id}).One(&chkResult)
+				err := db.Connection.DB(db.Name).C(db.Collection).Find(bson.M{"_id": tu.Id}).One(&chkResult)
 				convey.So(err, convey.ShouldBeNil)
 			})
 		})
@@ -138,7 +126,7 @@ func TestMongoDb_Create(t *testing.T) {
 			tu := TestUser{Name: "Test User",Gender:"Male", Email: "t.user@gmail.com", IsActive:true}
 
 			convey.Convey("Then should be return a error", func() {
-				err := rm.Create(tu)
+				err := db.Create(tu)
 				convey.So(err, convey.ShouldNotBeNil)
 			})
 		})
@@ -153,17 +141,17 @@ func TestMongoDb_GetAll(t *testing.T) {
 	testUsers := setupData(conn)
 
 	// Tests
-	rm := &lxBaseRepo.MongoDb{
-		Conn: conn,
-		Db:   Db,
-		Coll: Coll,
+	db := &lxDb.MongoDb{
+		Connection: conn,
+		Name:   Db,
+		Collection: Coll,
 	}
 
 	convey.Convey("Given all users should be read from the database", t, func() {
 		convey.Convey("When: get all users without query and options", func() {
 			var result []TestUser
-			var opts lxBaseRepo.Options
-			n, err := rm.GetAll(nil, &result, &opts)
+			var opts lxDb.Options
+			n, err := db.GetAll(nil, &result, &opts)
 
 			// Check err
 			convey.So(err, convey.ShouldBeNil)
@@ -182,8 +170,8 @@ func TestMongoDb_GetAll(t *testing.T) {
 		})
 		convey.Convey("When get all users with query is_active:true and option count", func() {
 			var result []TestUser
-			opts := lxBaseRepo.Options{Count: true}
-			n, err := rm.GetAll(bson.M{"is_active": true}, &result, &opts)
+			opts := lxDb.Options{Count: true}
+			n, err := db.GetAll(bson.M{"is_active": true}, &result, &opts)
 
 			// Check err
 			convey.So(err, convey.ShouldBeNil)
@@ -204,8 +192,8 @@ func TestMongoDb_GetAll(t *testing.T) {
 		})
 		convey.Convey("When get all users without query and options skip=5 limit=5 and count=true", func() {
 			var result []TestUser
-			opts := lxBaseRepo.Options{Skip: 5, Limit: 5, Count: true}
-			n, err := rm.GetAll(nil, &result, &opts)
+			opts := lxDb.Options{Skip: 5, Limit: 5, Count: true}
+			n, err := db.GetAll(nil, &result, &opts)
 
 			// Check err
 			convey.So(err, convey.ShouldBeNil)
@@ -245,7 +233,7 @@ func TestMongoDb_GetAll(t *testing.T) {
 //	}
 //
 //	// Tests
-//	rm := &lxBaseRepo.MongoDb{
+//	rm := &lxBaseRepo.MongoDbBase{
 //		Conn: conn,
 //		Db:   Db,
 //		Coll: Coll,
@@ -290,7 +278,7 @@ func TestMongoDb_GetAll(t *testing.T) {
 //	}
 //
 //	// Tests
-//	rm := &lxBaseRepo.MongoDb{
+//	rm := &lxBaseRepo.MongoDbBase{
 //		Conn: conn,
 //		Db:   Db,
 //		Coll: Coll,
@@ -323,7 +311,7 @@ func TestMongoDb_GetAll(t *testing.T) {
 //	}
 //
 //	// Tests
-//	rm := &lxBaseRepo.MongoDb{
+//	rm := &lxBaseRepo.MongoDbBase{
 //		Conn: conn,
 //		Db:   Db,
 //		Coll: Coll,
@@ -353,7 +341,7 @@ func TestMongoDb_GetAll(t *testing.T) {
 //	}
 //
 //	// Tests
-//	rm := &lxBaseRepo.MongoDb{
+//	rm := &lxBaseRepo.MongoDbBase{
 //		Conn: conn,
 //		Db:   Db,
 //		Coll: Coll,
@@ -394,7 +382,7 @@ func TestMongoDb_GetAll(t *testing.T) {
 //	}
 //
 //	// Tests
-//	rm := &lxBaseRepo.MongoDb{
+//	rm := &lxBaseRepo.MongoDbBase{
 //		Conn: conn,
 //		Db:   Db,
 //		Coll: Coll,
@@ -422,7 +410,7 @@ func TestMongoDb_GetAll(t *testing.T) {
 //	}
 //
 //	// Tests
-//	rm := &lxBaseRepo.MongoDb{
+//	rm := &lxBaseRepo.MongoDbBase{
 //		Conn: conn,
 //		Db:   Db,
 //		Coll: Coll,
