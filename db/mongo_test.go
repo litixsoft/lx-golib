@@ -104,11 +104,7 @@ func TestMongoDb_Create(t *testing.T) {
 	defer conn.Close()
 
 	// Tests
-	db := &lxDb.MongoDb{
-		Connection: conn,
-		Name:   Db,
-		Collection: Coll,
-	}
+	db := lxDb.NewMongoDb(conn, Db, Coll)
 
 	convey.Convey("Given a new user should be stored in the database", t, func() {
 		convey.Convey("When create a correct new user", func() {
@@ -118,7 +114,7 @@ func TestMongoDb_Create(t *testing.T) {
 
 			convey.Convey("Then this user should be found in the database", func() {
 				var chkResult TestUser
-				err := db.Connection.DB(db.Name).C(db.Collection).Find(bson.M{"_id": tu.Id}).One(&chkResult)
+				err := conn.DB(Db).C(Coll).Find(bson.M{"_id": tu.Id}).One(&chkResult)
 				convey.So(err, convey.ShouldBeNil)
 			})
 		})
@@ -141,11 +137,7 @@ func TestMongoDb_GetAll(t *testing.T) {
 	testUsers := setupData(conn)
 
 	// Tests
-	db := &lxDb.MongoDb{
-		Connection: conn,
-		Name:   Db,
-		Collection: Coll,
-	}
+	db := lxDb.NewMongoDb(conn, Db, Coll)
 
 	convey.Convey("Given all users should be read from the database", t, func() {
 		convey.Convey("When: get all users without query and options", func() {
@@ -199,9 +191,6 @@ func TestMongoDb_GetAll(t *testing.T) {
 			convey.So(err, convey.ShouldBeNil)
 
 			convey.Convey("Then: result should be contain only users u2 and u3", func() {
-				//sort.Slice(testUsers[:], func(i, j int) bool {
-				//	return testUsers[i].Id < expect[j].Id
-				//})
 				var expect []TestUser
 				i:=0
 				for _, u := range testUsers {
