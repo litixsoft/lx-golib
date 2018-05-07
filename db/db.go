@@ -15,6 +15,7 @@ type Options struct {
 
 // Base interface
 type IDatabase interface {
+	Setup(config interface{}) error
 	Create(data interface{}) error
 	GetAll(query interface{}, result interface{}, opts *Options) (int, error)
 	GetCount(query interface{}) (int, error)

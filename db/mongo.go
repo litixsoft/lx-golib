@@ -3,6 +3,7 @@ package lxDb
 import (
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
+	"errors"
 )
 
 // Db struct for mongodb
@@ -28,6 +29,33 @@ func NewMongoDb(connection *mgo.Session, dbName, collection string) *mongoDb {
 		name:dbName,
 		collection:collection,
 	}
+}
+
+// Setup create indexes for user collection.
+func (db *mongoDb) Setup(config interface{}) error {
+	// Copy mongo session (thread safe) and close after function
+	conn := db.connection.Copy()
+	defer conn.Close()
+
+	idx, ok := config.([]mgo.Index)
+	if !ok{
+		return errors.New("convert interface error")
+	}
+
+	//indexes := []mgo.Index{
+	//	{Key: []string{"email"}, Unique: true},
+	//	{Key: []string{"login_name"}, Unique: true},
+	//}
+	// Ensure indexes
+	col := conn.DB(db.name).C(db.collection)
+
+	for _, i := range idx {
+		if err := col.EnsureIndex(i); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // Create, create new entity in collection
