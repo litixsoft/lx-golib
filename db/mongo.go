@@ -31,21 +31,20 @@ func NewMongoDb(connection *mgo.Session, dbName, collection string) *mongoDb {
 	}
 }
 
+type MongoIndex mgo.Index
+
 // Setup create indexes for user collection.
 func (db *mongoDb) Setup(config interface{}) error {
 	// Copy mongo session (thread safe) and close after function
 	conn := db.connection.Copy()
 	defer conn.Close()
 
+
 	idx, ok := config.([]mgo.Index)
 	if !ok{
-		return errors.New("convert interface error")
+		return errors.New("lxDb.mongoDb.Setup config interface is not []mgo.index")
 	}
 
-	//indexes := []mgo.Index{
-	//	{Key: []string{"email"}, Unique: true},
-	//	{Key: []string{"login_name"}, Unique: true},
-	//}
 	// Ensure indexes
 	col := conn.DB(db.name).C(db.collection)
 
