@@ -3,28 +3,28 @@ package lxDb
 import (
 	"github.com/globalsign/mgo"
 	"errors"
+	"github.com/globalsign/mgo/bson"
 )
 
 // Db struct for mongodb
 type MongoBaseDb struct {
-	Connection *mgo.Session
-	Name string
-	Collection string
+	connection *mgo.Session
+	name string
+	collection string
 }
 
-func NewMongoBaseDb(connection *mgo.Session, dbName, collection string) *MongoBaseDb {
-	return &MongoBaseDb{
-		Connection:connection,
-		Name:dbName,
-		Collection:collection,
+func NewMongoBaseDb(connection *mgo.Session, dbName, collection string) MongoBaseDb {
+	return MongoBaseDb{
+		connection:connection,
+		name:dbName,
+		collection:collection,
 	}
 }
-
 
 // Setup create indexes for user collection.
 func (db *MongoBaseDb) Setup(config interface{}) error {
 	// Copy mongo session (thread safe) and close after function
-	conn := db.Connection.Copy()
+	conn := db.connection.Copy()
 	defer conn.Close()
 
 
@@ -34,7 +34,7 @@ func (db *MongoBaseDb) Setup(config interface{}) error {
 	}
 
 	// Ensure indexes
-	col := conn.DB(db.Name).C(db.Collection)
+	col := conn.DB(db.name).C(db.collection)
 
 	for _, i := range idx {
 		if err := col.EnsureIndex(i); err != nil {
@@ -46,19 +46,19 @@ func (db *MongoBaseDb) Setup(config interface{}) error {
 }
 
 // Create, create new entity in collection
-//func (db mongoDb) Create(data interface{}) error {
-//	// Copy mongo session (thread safe) and close after function
-//	conn := db.connection.Copy()
-//	defer conn.Close()
-//
-//	// Insert data
-//	return conn.DB(db.name).C(db.collection).Insert(data)
-//}
+func (db *MongoBaseDb) Create(data interface{}) error {
+	// Copy mongo session (thread safe) and close after function
+	conn := db.connection.Copy()
+	defer conn.Close()
+
+	// Insert data
+	return conn.DB(db.name).C(db.collection).Insert(data)
+}
 
 // GetAll, get all entities by query in collection
 func (db *MongoBaseDb) GetAll(query interface{}, result interface{}, opts *Options) (int, error) {
 	// Copy mongo session (thread safe) and close after function
-	conn := db.Connection.Copy()
+	conn := db.connection.Copy()
 	defer conn.Close()
 
 	// Set default count
@@ -67,86 +67,86 @@ func (db *MongoBaseDb) GetAll(query interface{}, result interface{}, opts *Optio
 	// Check if activate counter in options
 	if opts.Count {
 		var err error
-		n, err = conn.DB(db.Name).C(db.Collection).Find(query).Count()
+		n, err = conn.DB(db.name).C(db.collection).Find(query).Count()
 		if err != nil {
 			return n, err
 		}
 	}
 
 	// Find all with query in collection
-	return n, conn.DB(db.Name).C(db.Collection).Find(query).Skip(opts.Skip).Limit(opts.Limit).All(result)
+	return n, conn.DB(db.name).C(db.collection).Find(query).Skip(opts.Skip).Limit(opts.Limit).All(result)
 }
 
 // GetCount, get count of entities by query in collection
-//func (db *mongoDb) GetCount(query interface{}) (int, error) {
-//	// Copy mongo session (thread safe) and close after function
-//	conn := db.connection.Copy()
-//	defer conn.Close()
-//
-//	// Find all with query in collection
-//	return conn.DB(db.name).C(db.collection).Find(query).Count()
-//}
+func (db *MongoBaseDb) GetCount(query interface{}) (int, error) {
+	// Copy mongo session (thread safe) and close after function
+	conn := db.connection.Copy()
+	defer conn.Close()
+
+	// Find all with query in collection
+	return conn.DB(db.name).C(db.collection).Find(query).Count()
+}
 
 // GetOne, get one entity by query in collection
 func (db *MongoBaseDb) GetOne(query interface{}, result interface{}) error {
 	// Copy mongo session (thread safe) and close after function
-	conn := db.Connection.Copy()
+	conn := db.connection.Copy()
 	defer conn.Close()
 
 	// Find one with query in collection
-	return conn.DB(db.Name).C(db.Collection).Find(query).One(result)
+	return conn.DB(db.name).C(db.collection).Find(query).One(result)
 }
 
 // Update, update one matched entity by query in collection
-//func (db *mongoDb) Update(query interface{}, data interface{}) error {
-//	// Copy mongo session (thread safe) and close after function
-//	conn := db.connection.Copy()
-//	defer conn.Close()
-//
-//	// Update one with query in collection
-//	return conn.DB(db.name).C(db.collection).Update(query, bson.M{"$set": data})
-//}
+func (db *MongoBaseDb) Update(query interface{}, data interface{}) error {
+	// Copy mongo session (thread safe) and close after function
+	conn := db.connection.Copy()
+	defer conn.Close()
+
+	// Update one with query in collection
+	return conn.DB(db.name).C(db.collection).Update(query, bson.M{"$set": data})
+}
 
 // UpdateAll, update all matched entities by query in collection
-//func (db *mongoDb) UpdateAll(query interface{}, data interface{}) (ChangeInfo, error) {
-//	// Copy mongo session (thread safe) and close after function
-//	conn := db.connection.Copy()
-//	defer conn.Close()
-//
-//	// Update all with query in collection
-//	info, err := conn.DB(db.name).C(db.collection).UpdateAll(query, bson.M{"$set": data})
-//	changeInfo := ChangeInfo{
-//		Updated: info.Updated,
-//		Removed: info.Removed,
-//		Matched: info.Matched,
-//	}
-//
-//	return changeInfo, err
-//}
+func (db *MongoBaseDb) UpdateAll(query interface{}, data interface{}) (ChangeInfo, error) {
+	// Copy mongo session (thread safe) and close after function
+	conn := db.connection.Copy()
+	defer conn.Close()
+
+	// Update all with query in collection
+	info, err := conn.DB(db.name).C(db.collection).UpdateAll(query, bson.M{"$set": data})
+	changeInfo := ChangeInfo{
+		Updated: info.Updated,
+		Removed: info.Removed,
+		Matched: info.Matched,
+	}
+
+	return changeInfo, err
+}
 
 // Delete, delete one matched entity by query in collection
-//func (db *mongoDb) Delete(query interface{}) error {
-//	// Copy mongo session (thread safe) and close after function
-//	conn := db.connection.Copy()
-//	defer conn.Close()
-//
-//	// Delete one with query in collection
-//	return conn.DB(db.name).C(db.collection).Remove(query)
-//}
+func (db *MongoBaseDb) Delete(query interface{}) error {
+	// Copy mongo session (thread safe) and close after function
+	conn := db.connection.Copy()
+	defer conn.Close()
+
+	// Delete one with query in collection
+	return conn.DB(db.name).C(db.collection).Remove(query)
+}
 
 // DeleteAll, delete all matched entities by query in collection
-//func (db *mongoDb) DeleteAll(query interface{}) (ChangeInfo, error) {
-//	// Copy mongo session (thread safe) and close after function
-//	conn := db.connection.Copy()
-//	defer conn.Close()
-//
-//	// Remove all with query in collection
-//	info, err := conn.DB(db.name).C(db.collection).RemoveAll(query)
-//	changeInfo := ChangeInfo{
-//		Updated: info.Updated,
-//		Removed: info.Removed,
-//		Matched: info.Matched,
-//	}
-//
-//	return changeInfo, err
-//}
+func (db *MongoBaseDb) DeleteAll(query interface{}) (ChangeInfo, error) {
+	// Copy mongo session (thread safe) and close after function
+	conn := db.connection.Copy()
+	defer conn.Close()
+
+	// Remove all with query in collection
+	info, err := conn.DB(db.name).C(db.collection).RemoveAll(query)
+	changeInfo := ChangeInfo{
+		Updated: info.Updated,
+		Removed: info.Removed,
+		Matched: info.Matched,
+	}
+
+	return changeInfo, err
+}
