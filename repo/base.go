@@ -9,11 +9,11 @@ type IBaseRepo interface {
 }
 
 type BaseRepo struct {
-	Db lxDb.IDatabase
+	BaseDb lxDb.IBaseDb
 }
 
 func (repo *BaseRepo) List(result interface{}, opts *lxDb.Options) (int, error) {
-	n, err := repo.Db.GetAll(nil, result, opts)
+	n, err := repo.BaseDb.GetAll(nil, result, opts)
 	if err != nil {
 		return n, err
 	}
