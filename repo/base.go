@@ -5,7 +5,7 @@ import (
 )
 
 type IBaseRepo interface {
-	List(result interface{}, opts *lxDb.Options) (int, error)
+	List(query, result interface{}, opts *lxDb.Options) (int, error)
 }
 
 type BaseRepo struct {
@@ -16,8 +16,8 @@ func NewBaseRepo(db lxDb.IBaseDb) *BaseRepo {
 	return &BaseRepo{Db:db}
 }
 
-func (repo *BaseRepo) List(result interface{}, opts *lxDb.Options) (int, error) {
-	n, err := repo.Db.GetAll(nil, result, opts)
+func (repo *BaseRepo) List(query, result interface{}, opts *lxDb.Options) (int, error) {
+	n, err := repo.Db.GetAll(query, result, opts)
 	if err != nil {
 		return n, err
 	}

@@ -1,4 +1,4 @@
-package lxHelper
+package lxTestHelper
 
 import (
 	"io"
