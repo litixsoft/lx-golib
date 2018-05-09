@@ -7,14 +7,14 @@ import (
 )
 
 // Db struct for mongodb
-type MongoBaseDb struct {
+type mongoBaseDb struct {
 	connection *mgo.Session
 	name       string
 	collection string
 }
 
-func NewMongoBaseDb(connection *mgo.Session, dbName, collection string) MongoBaseDb {
-	return MongoBaseDb{
+func NewMongoBaseDb(connection *mgo.Session, dbName, collection string) *mongoBaseDb {
+	return &mongoBaseDb{
 		connection: connection,
 		name:       dbName,
 		collection: collection,
@@ -22,7 +22,7 @@ func NewMongoBaseDb(connection *mgo.Session, dbName, collection string) MongoBas
 }
 
 // Setup create indexes for user collection.
-func (db *MongoBaseDb) Setup(config interface{}) error {
+func (db *mongoBaseDb) Setup(config interface{}) error {
 	// Copy mongo session (thread safe) and close after function
 	conn := db.connection.Copy()
 	defer conn.Close()
@@ -45,7 +45,7 @@ func (db *MongoBaseDb) Setup(config interface{}) error {
 }
 
 // Create, create new entity in collection
-func (db *MongoBaseDb) Create(data interface{}) error {
+func (db *mongoBaseDb) Create(data interface{}) error {
 	// Copy mongo session (thread safe) and close after function
 	conn := db.connection.Copy()
 	defer conn.Close()
@@ -55,7 +55,7 @@ func (db *MongoBaseDb) Create(data interface{}) error {
 }
 
 // GetAll, get all entities by query in collection
-func (db *MongoBaseDb) GetAll(query interface{}, result interface{}, opts *Options) (int, error) {
+func (db *mongoBaseDb) GetAll(query interface{}, result interface{}, opts *Options) (int, error) {
 	// Copy mongo session (thread safe) and close after function
 	conn := db.connection.Copy()
 	defer conn.Close()
@@ -77,7 +77,7 @@ func (db *MongoBaseDb) GetAll(query interface{}, result interface{}, opts *Optio
 }
 
 // GetCount, get count of entities by query in collection
-func (db *MongoBaseDb) GetCount(query interface{}) (int, error) {
+func (db *mongoBaseDb) GetCount(query interface{}) (int, error) {
 	// Copy mongo session (thread safe) and close after function
 	conn := db.connection.Copy()
 	defer conn.Close()
@@ -87,7 +87,7 @@ func (db *MongoBaseDb) GetCount(query interface{}) (int, error) {
 }
 
 // GetOne, get one entity by query in collection
-func (db *MongoBaseDb) GetOne(query interface{}, result interface{}) error {
+func (db *mongoBaseDb) GetOne(query interface{}, result interface{}) error {
 	// Copy mongo session (thread safe) and close after function
 	conn := db.connection.Copy()
 	defer conn.Close()
@@ -97,7 +97,7 @@ func (db *MongoBaseDb) GetOne(query interface{}, result interface{}) error {
 }
 
 // Update, update one matched entity by query in collection
-func (db *MongoBaseDb) Update(query interface{}, data interface{}) error {
+func (db *mongoBaseDb) Update(query interface{}, data interface{}) error {
 	// Copy mongo session (thread safe) and close after function
 	conn := db.connection.Copy()
 	defer conn.Close()
@@ -107,7 +107,7 @@ func (db *MongoBaseDb) Update(query interface{}, data interface{}) error {
 }
 
 // UpdateAll, update all matched entities by query in collection
-func (db *MongoBaseDb) UpdateAll(query interface{}, data interface{}) (ChangeInfo, error) {
+func (db *mongoBaseDb) UpdateAll(query interface{}, data interface{}) (ChangeInfo, error) {
 	// Copy mongo session (thread safe) and close after function
 	conn := db.connection.Copy()
 	defer conn.Close()
@@ -124,7 +124,7 @@ func (db *MongoBaseDb) UpdateAll(query interface{}, data interface{}) (ChangeInf
 }
 
 // Delete, delete one matched entity by query in collection
-func (db *MongoBaseDb) Delete(query interface{}) error {
+func (db *mongoBaseDb) Delete(query interface{}) error {
 	// Copy mongo session (thread safe) and close after function
 	conn := db.connection.Copy()
 	defer conn.Close()
@@ -134,7 +134,7 @@ func (db *MongoBaseDb) Delete(query interface{}) error {
 }
 
 // DeleteAll, delete all matched entities by query in collection
-func (db *MongoBaseDb) DeleteAll(query interface{}) (ChangeInfo, error) {
+func (db *mongoBaseDb) DeleteAll(query interface{}) (ChangeInfo, error) {
 	// Copy mongo session (thread safe) and close after function
 	conn := db.connection.Copy()
 	defer conn.Close()
