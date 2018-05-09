@@ -1,17 +1,16 @@
 package lxDb_test
 
-
 import (
+	"encoding/json"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
+	"github.com/litixsoft/lx-golib/db"
+	"github.com/smartystreets/goconvey/convey"
+	"io/ioutil"
 	"log"
 	"os"
-	"io/ioutil"
 	"sort"
-	"encoding/json"
 	"testing"
-	"github.com/smartystreets/goconvey/convey"
-	"github.com/litixsoft/lx-golib/db"
 )
 
 // TestUser, struct for test users
@@ -24,11 +23,11 @@ type TestUser struct {
 }
 
 const (
-	DbName   = "lx_golib_test"
+	DbName     = "lx_golib_test"
 	Collection = "users"
 )
 
-func getConn () *mgo.Session {
+func getConn() *mgo.Session {
 
 	// Check DbHost environment
 	dbHost := os.Getenv("DBHOST")
@@ -109,7 +108,7 @@ func TestMongoDb_Create(t *testing.T) {
 
 	convey.Convey("Given 25 test users in test database", t, func() {
 		convey.Convey("When create a correct new user", func() {
-			tu := TestUser{Id: bson.NewObjectId(), Name: "Test User",Gender:"Male", Email: "t.user@gmail.com", IsActive:true}
+			tu := TestUser{Id: bson.NewObjectId(), Name: "Test User", Gender: "Male", Email: "t.user@gmail.com", IsActive: true}
 			err := db.Create(tu)
 			convey.So(err, convey.ShouldBeNil)
 
@@ -120,7 +119,7 @@ func TestMongoDb_Create(t *testing.T) {
 			})
 		})
 		convey.Convey("When we create a new incorrect user without id", func() {
-			tu := TestUser{Name: "Test User",Gender:"Male", Email: "t.user@gmail.com", IsActive:true}
+			tu := TestUser{Name: "Test User", Gender: "Male", Email: "t.user@gmail.com", IsActive: true}
 
 			convey.Convey("Then should be return a error", func() {
 				err := db.Create(tu)
@@ -193,9 +192,9 @@ func TestMongoDb_GetAll(t *testing.T) {
 
 			convey.Convey("Then: result should be contain only users u2 and u3", func() {
 				var expect []TestUser
-				i:=0
+				i := 0
 				for _, u := range testUsers {
-					if i >4 && i <10 {
+					if i > 4 && i < 10 {
 						expect = append(expect, u)
 					}
 					i++
@@ -258,7 +257,7 @@ func TestMongoBaseDb_GetOne(t *testing.T) {
 		convey.Convey("When get user with query _id:testUsers[5].Id", func() {
 
 			var result TestUser
-			convey.So(db.GetOne(bson.M{"_id":testUsers[5].Id}, &result), convey.ShouldBeNil)
+			convey.So(db.GetOne(bson.M{"_id": testUsers[5].Id}, &result), convey.ShouldBeNil)
 
 			convey.Convey("Then result should be equal to testUsers[5]", func() {
 				convey.So(result, convey.ShouldResemble, testUsers[5])
@@ -266,7 +265,7 @@ func TestMongoBaseDb_GetOne(t *testing.T) {
 		})
 		convey.Convey("When get user with query gender:Female", func() {
 			var result TestUser
-			convey.So(db.GetOne(bson.M{"gender":"Female"}, &result), convey.ShouldBeNil)
+			convey.So(db.GetOne(bson.M{"gender": "Female"}, &result), convey.ShouldBeNil)
 
 			convey.Convey("Then result should be contain the first female user", func() {
 				var expect TestUser
