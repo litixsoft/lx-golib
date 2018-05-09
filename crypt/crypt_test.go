@@ -1,9 +1,9 @@
 package lxCrypt_test
 
 import (
-	"testing"
 	"github.com/litixsoft/lx-golib/crypt"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestCrypt_GeneratePassword(t *testing.T) {

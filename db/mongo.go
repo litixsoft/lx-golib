@@ -1,23 +1,23 @@
 package lxDb
 
 import (
-	"github.com/globalsign/mgo"
 	"errors"
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 )
 
 // Db struct for mongodb
 type MongoBaseDb struct {
 	connection *mgo.Session
-	name string
+	name       string
 	collection string
 }
 
 func NewMongoBaseDb(connection *mgo.Session, dbName, collection string) MongoBaseDb {
 	return MongoBaseDb{
-		connection:connection,
-		name:dbName,
-		collection:collection,
+		connection: connection,
+		name:       dbName,
+		collection: collection,
 	}
 }
 
@@ -27,9 +27,8 @@ func (db *MongoBaseDb) Setup(config interface{}) error {
 	conn := db.connection.Copy()
 	defer conn.Close()
 
-
 	idx, ok := config.([]mgo.Index)
-	if !ok{
+	if !ok {
 		return errors.New("lxDb.mongoDb.Setup config interface is not []mgo.index")
 	}
 

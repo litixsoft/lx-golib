@@ -8,8 +8,8 @@ type ChangeInfo struct {
 }
 
 type Options struct {
-	Skip int `json:"skip"`
-	Limit int `json:"limit"`
+	Skip  int  `json:"skip"`
+	Limit int  `json:"limit"`
 	Count bool `json:"count"`
 }
 

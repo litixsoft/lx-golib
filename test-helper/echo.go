@@ -1,10 +1,10 @@
 package lxTestHelper
 
 import (
-	"io"
-	"net/http/httptest"
 	"github.com/labstack/echo"
+	"io"
 	"io/ioutil"
+	"net/http/httptest"
 )
 
 // SetRequest, setup json request returns recorder and echo context

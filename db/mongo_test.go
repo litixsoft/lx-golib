@@ -1,283 +1,288 @@
 package lxDb_test
-//
-//import (
-//	"github.com/globalsign/mgo"
-//	"github.com/globalsign/mgo/bson"
-//	"log"
-//	"io/ioutil"
-//	"encoding/json"
-//	"testing"
-//	"github.com/smartystreets/goconvey/convey"
-//	"sort"
-//	"os"
-//	"github.com/litixsoft/lx-golib/db"
-//)
-//
-//// TestUser, struct for test users
-//type TestUser struct {
-//	Id       bson.ObjectId `json:"id" bson:"_id"`
-//	Name     string        `json:"name" bson:"name"`
-//	Gender   string        `json:"gender" bson:"gender"`
-//	Email    string        `json:"email" bson:"email"`
-//	IsActive bool          `json:"is_active" bson:"is_active"`
-//}
-//
-//const (
-//	Db   = "lx_golib_test"
-//	Coll = "users"
-//)
-//
-//func getConn () *mgo.Session {
-//
-//	// Check DbHost environment
-//	dbHost := os.Getenv("DBHOST")
-//
-//	// When not defined set default host
-//	if dbHost == "" {
-//		dbHost = "localhost:27017"
-//	}
-//
-//	log.Println("DBHOST:", dbHost)
-//
-//	// Create new connection
-//	conn, err := mgo.Dial(dbHost)
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//	conn.SetMode(mgo.Monotonic, true)
-//
-//	return conn
-//}
-//
-//// setupData, create the test data and prepare the database
-//func setupData(conn *mgo.Session) []TestUser {
-//	// Delete collection if exists
-//	conn.DB(Db).C(Coll).DropCollection()
-//
-//	// Setup indexes
-//	indexes := []mgo.Index{
-//		{Key: []string{"name"}},
-//		{Key: []string{"email"}, Unique: true},
-//	}
-//
-//	// Ensure indexes
-//	col := conn.DB(Db).C(Coll)
-//	for _, i := range indexes {
-//		if err := col.EnsureIndex(i); err != nil {
-//			log.Fatal(err)
-//		}
-//	}
-//
-//	// Load test data from json file
-//	raw, err := ioutil.ReadFile("../tests/fixtures/MOCK_DATA.json")
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//
-//	// Convert
-//	var users []TestUser
-//	if err := json.Unmarshal(raw, &users); err != nil {
-//		log.Fatal(err)
-//	}
-//
-//	// Make Test users map and insert test data in db
-//	for i := 0; i < len(users); i++ {
-//		users[i].Id = bson.NewObjectId()
-//
-//		// Insert user
-//		if err := conn.DB(Db).C(Coll).Insert(users[i]); err != nil {
-//			log.Fatal(err)
-//		}
-//	}
-//
-//	// Sort test users with id for compare
-//	sort.Slice(users[:], func(i, j int) bool {
-//		return users[i].Id < users[j].Id
-//	})
-//
-//	// Return mongo connection
-//	return users
-//}
-//
-//func TestMongoDb_Create(t *testing.T) {
-//	conn := getConn()
-//	defer conn.Close()
-//
-//	// Tests
-//	db := lxDb.NewMongoDb(conn, Db, Coll)
-//
-//	convey.Convey("Given a new user should be stored in the database", t, func() {
-//		convey.Convey("When create a correct new user", func() {
-//			tu := TestUser{Id: bson.NewObjectId(), Name: "Test User",Gender:"Male", Email: "t.user@gmail.com", IsActive:true}
-//			err := db.Create(tu)
-//			convey.So(err, convey.ShouldBeNil)
-//
-//			convey.Convey("Then this user should be found in the database", func() {
-//				var chkResult TestUser
-//				err := conn.DB(Db).C(Coll).Find(bson.M{"_id": tu.Id}).One(&chkResult)
-//				convey.So(err, convey.ShouldBeNil)
-//			})
-//		})
-//		convey.Convey("When we create a new incorrect user without id", func() {
-//			tu := TestUser{Name: "Test User",Gender:"Male", Email: "t.user@gmail.com", IsActive:true}
-//
-//			convey.Convey("Then should be return a error", func() {
-//				err := db.Create(tu)
-//				convey.So(err, convey.ShouldNotBeNil)
-//			})
-//		})
-//	})
-//}
-//
-//func TestMongoDb_GetAll(t *testing.T) {
-//	conn := getConn()
-//	defer conn.Close()
-//
-//	// Create test users
-//	testUsers := setupData(conn)
-//
-//	// Tests
-//	db := lxDb.NewMongoDb(conn, Db, Coll)
-//
-//	convey.Convey("Given all users should be read from the database", t, func() {
-//		convey.Convey("When: get all users without query and options", func() {
-//			var result []TestUser
-//			var opts lxDb.Options
-//			n, err := db.GetAll(nil, &result, &opts)
-//
-//			// Check err
-//			convey.So(err, convey.ShouldBeNil)
-//
-//			convey.Convey("Then result should be contain all users", func() {
-//				// Expect all users
-//				var expect []TestUser
-//				for _, u := range testUsers {
-//					expect = append(expect, u)
-//				}
-//
-//				// Check count and result
-//				convey.So(result, convey.ShouldResemble, expect)
-//				convey.So(n, convey.ShouldEqual, 0) // Count 0 when count option is false
-//			})
-//		})
-//		convey.Convey("When get all users with query is_active:true and option count", func() {
-//			var result []TestUser
-//			opts := lxDb.Options{Count: true}
-//			n, err := db.GetAll(bson.M{"is_active": true}, &result, &opts)
-//
-//			// Check err
-//			convey.So(err, convey.ShouldBeNil)
-//
-//			convey.Convey("Then result should be contain all active users", func() {
-//				// Expect all active users
-//				var expect []TestUser
-//				for _, u := range testUsers {
-//					if u.IsActive {
-//						expect = append(expect, u)
-//					}
-//				}
-//
-//				// Check count and result
-//				convey.So(result, convey.ShouldResemble, expect)
-//				convey.So(n, convey.ShouldEqual, len(expect))
-//			})
-//		})
-//		convey.Convey("When get all users without query and options skip=5 limit=5 and count=true", func() {
-//			var result []TestUser
-//			opts := lxDb.Options{Skip: 5, Limit: 5, Count: true}
-//			n, err := db.GetAll(nil, &result, &opts)
-//
-//			// Check err
-//			convey.So(err, convey.ShouldBeNil)
-//
-//			convey.Convey("Then: result should be contain only users u2 and u3", func() {
-//				var expect []TestUser
-//				i:=0
-//				for _, u := range testUsers {
-//					if i >4 && i <10 {
-//						expect = append(expect, u)
-//					}
-//					i++
-//				}
-//
-//				// Check count and result
-//				convey.So(result, convey.ShouldResemble, expect)
-//				convey.So(n, convey.ShouldEqual, len(testUsers)) // Count complete skip is a filter
-//			})
-//		})
-//	})
-//}
-////
-////func TestMongoDb_GetCount(t *testing.T) {
-////	// Setup
-////	conn, err := mgo.Dial(dbHost)
-////	if err != nil {
-////		log.Fatal(err)
-////	}
-////	conn.SetMode(mgo.Monotonic, true)
-////	defer conn.Close()
-////
-////	if err := baseSetup(conn); err != nil {
-////		log.Fatal(err)
-////	}
-////
-////	// Tests
-////	rm := &lxBaseRepo.MongoDbBase{
-////		Conn: conn,
-////		Db:   Db,
-////		Coll: Coll,
-////	}
-////
-////	convey.Convey("Given: Test data with 4 users", t, func() {
-////		convey.Convey("When: get count without query ", func() {
-////			n, err := rm.GetCount(nil)
-////
-////			// Check err
-////			convey.So(err, convey.ShouldBeNil)
-////
-////			convey.Convey("Then: response count should be len(testUsers)", func() {
-////				convey.So(n, convey.ShouldEqual, len(baseTestUsers))
-////			})
-////		})
-////		convey.Convey("When: get count with query .langbein@litixsoft.de", func() {
-////			query := bson.M{"email": bson.M{"$regex": ".langbein@litixsoft.de"}}
-////			n, err := rm.GetCount(query)
-////
-////			// Check err
-////			convey.So(err, convey.ShouldBeNil)
-////
-////			convey.Convey("Then: response count should be 2", func() {
-////				convey.So(n, convey.ShouldEqual, 2)
-////			})
-////		})
-////	})
-////}
-////
-////func TestMongoDb_GetOne(t *testing.T) {
-////	// Setup
-////	conn, err := mgo.Dial(dbHost)
-////	if err != nil {
-////		log.Fatal(err)
-////	}
-////	conn.SetMode(mgo.Monotonic, true)
-////	defer conn.Close()
-////
-////	if err := baseSetup(conn); err != nil {
-////		log.Fatal(err)
-////	}
-////
-////	// Tests
-////	rm := &lxBaseRepo.MongoDbBase{
-////		Conn: conn,
-////		Db:   Db,
-////		Coll: Coll,
-////	}
-////
-////	// Get user2 with id
-////	var result TestUser
-////	if assert.NoError(t, rm.GetOne(bson.M{"_id": baseTestUsers["u2"].Id}, &result)) {
-////		assert.Equal(t, baseTestUsers["u2"], result)
-////	}
+
+
+import (
+	"github.com/globalsign/mgo"
+	"github.com/globalsign/mgo/bson"
+	"log"
+	"os"
+	"io/ioutil"
+	"sort"
+	"encoding/json"
+	"testing"
+	"github.com/smartystreets/goconvey/convey"
+	"github.com/litixsoft/lx-golib/db"
+)
+
+// TestUser, struct for test users
+type TestUser struct {
+	Id       bson.ObjectId `json:"id" bson:"_id"`
+	Name     string        `json:"name" bson:"name"`
+	Gender   string        `json:"gender" bson:"gender"`
+	Email    string        `json:"email" bson:"email"`
+	IsActive bool          `json:"is_active" bson:"is_active"`
+}
+
+const (
+	DbName   = "lx_golib_test"
+	Collection = "users"
+)
+
+func getConn () *mgo.Session {
+
+	// Check DbHost environment
+	dbHost := os.Getenv("DBHOST")
+
+	// When not defined set default host
+	if dbHost == "" {
+		dbHost = "localhost:27017"
+	}
+
+	log.Println("DBHOST:", dbHost)
+
+	// Create new connection
+	conn, err := mgo.Dial(dbHost)
+	if err != nil {
+		log.Fatal(err)
+	}
+	conn.SetMode(mgo.Monotonic, true)
+
+	return conn
+}
+
+// setupData, create the test data and prepare the database
+func setupData(conn *mgo.Session) []TestUser {
+	// Delete collection if exists
+	conn.DB(DbName).C(Collection).DropCollection()
+
+	// Setup indexes
+	indexes := []mgo.Index{
+		{Key: []string{"name"}},
+		{Key: []string{"email"}, Unique: true},
+	}
+
+	// Ensure indexes
+	col := conn.DB(DbName).C(Collection)
+	for _, i := range indexes {
+		if err := col.EnsureIndex(i); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	// Load test data from json file
+	raw, err := ioutil.ReadFile("../tests/fixtures/MOCK_DATA.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Convert
+	var users []TestUser
+	if err := json.Unmarshal(raw, &users); err != nil {
+		log.Fatal(err)
+	}
+
+	// Make Test users map and insert test data in db
+	for i := 0; i < len(users); i++ {
+		users[i].Id = bson.NewObjectId()
+
+		// Insert user
+		if err := conn.DB(DbName).C(Collection).Insert(users[i]); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	// Sort test users with id for compare
+	sort.Slice(users[:], func(i, j int) bool {
+		return users[i].Id < users[j].Id
+	})
+
+	// Return mongo connection
+	return users
+}
+
+func TestMongoDb_Create(t *testing.T) {
+	conn := getConn()
+	defer conn.Close()
+
+	// Tests
+	db := lxDb.NewMongoBaseDb(conn, DbName, Collection)
+
+	convey.Convey("Given 25 test users in test database", t, func() {
+		convey.Convey("When create a correct new user", func() {
+			tu := TestUser{Id: bson.NewObjectId(), Name: "Test User",Gender:"Male", Email: "t.user@gmail.com", IsActive:true}
+			err := db.Create(tu)
+			convey.So(err, convey.ShouldBeNil)
+
+			convey.Convey("Then this user should be found in the database", func() {
+				var chkResult TestUser
+				err := conn.DB(DbName).C(Collection).Find(bson.M{"_id": tu.Id}).One(&chkResult)
+				convey.So(err, convey.ShouldBeNil)
+			})
+		})
+		convey.Convey("When we create a new incorrect user without id", func() {
+			tu := TestUser{Name: "Test User",Gender:"Male", Email: "t.user@gmail.com", IsActive:true}
+
+			convey.Convey("Then should be return a error", func() {
+				err := db.Create(tu)
+				convey.So(err, convey.ShouldNotBeNil)
+			})
+		})
+	})
+}
+
+func TestMongoDb_GetAll(t *testing.T) {
+	conn := getConn()
+	defer conn.Close()
+
+	// Create test users
+	testUsers := setupData(conn)
+
+	// Tests
+	db := lxDb.NewMongoBaseDb(conn, DbName, Collection)
+
+	convey.Convey("Given 25 test users in database", t, func() {
+		convey.Convey("When get all users without query and options", func() {
+			var result []TestUser
+			var opts lxDb.Options
+			n, err := db.GetAll(nil, &result, &opts)
+
+			// Check err
+			convey.So(err, convey.ShouldBeNil)
+
+			convey.Convey("Then result should be contain all users", func() {
+				// Expect all users
+				var expect []TestUser
+				for _, u := range testUsers {
+					expect = append(expect, u)
+				}
+
+				// Check count and result
+				convey.So(result, convey.ShouldResemble, expect)
+				convey.So(n, convey.ShouldEqual, 0) // Count 0 when count option is false
+			})
+		})
+		convey.Convey("When get all users with query is_active:true and option count", func() {
+			var result []TestUser
+			opts := lxDb.Options{Count: true}
+			n, err := db.GetAll(bson.M{"is_active": true}, &result, &opts)
+
+			// Check err
+			convey.So(err, convey.ShouldBeNil)
+
+			convey.Convey("Then result should be contain all active users", func() {
+				// Expect all active users
+				var expect []TestUser
+				for _, u := range testUsers {
+					if u.IsActive {
+						expect = append(expect, u)
+					}
+				}
+
+				// Check count and result
+				convey.So(result, convey.ShouldResemble, expect)
+				convey.So(n, convey.ShouldEqual, len(expect))
+			})
+		})
+		convey.Convey("When get all users without query and options skip=5 limit=5 and count=true", func() {
+			var result []TestUser
+			opts := lxDb.Options{Skip: 5, Limit: 5, Count: true}
+			n, err := db.GetAll(nil, &result, &opts)
+
+			// Check err
+			convey.So(err, convey.ShouldBeNil)
+
+			convey.Convey("Then: result should be contain only users u2 and u3", func() {
+				var expect []TestUser
+				i:=0
+				for _, u := range testUsers {
+					if i >4 && i <10 {
+						expect = append(expect, u)
+					}
+					i++
+				}
+
+				// Check count and result
+				convey.So(result, convey.ShouldResemble, expect)
+				convey.So(n, convey.ShouldEqual, len(testUsers)) // Count complete skip is a filter
+			})
+		})
+	})
+}
+
+func TestMongoDb_GetCount(t *testing.T) {
+	conn := getConn()
+	defer conn.Close()
+
+	// Create test users
+	testUsers := setupData(conn)
+
+	// Tests
+	db := lxDb.NewMongoBaseDb(conn, DbName, Collection)
+
+	convey.Convey("Given 25 test users in database", t, func() {
+		convey.Convey("When get count without query ", func() {
+			n, err := db.GetCount(nil)
+
+			// Check err
+			convey.So(err, convey.ShouldBeNil)
+
+			convey.Convey("Then response count should be len(testUsers)", func() {
+				convey.So(n, convey.ShouldEqual, len(testUsers))
+			})
+		})
+		convey.Convey("When get count with query is_active:true", func() {
+			query := bson.M{"is_active": true}
+			n, err := db.GetCount(query)
+
+			// Check err
+			convey.So(err, convey.ShouldBeNil)
+
+			convey.Convey("Then response count should be 12", func() {
+				convey.So(n, convey.ShouldEqual, 12)
+			})
+		})
+	})
+}
+
+func TestMongoBaseDb_GetOne(t *testing.T) {
+	conn := getConn()
+	defer conn.Close()
+
+	// Create test users
+	testUsers := setupData(conn)
+
+	// Tests
+	db := lxDb.NewMongoBaseDb(conn, DbName, Collection)
+
+	convey.Convey("Given 25 test users in database", t, func() {
+		convey.Convey("When get user with query _id:testUsers[5].Id", func() {
+
+			var result TestUser
+			convey.So(db.GetOne(bson.M{"_id":testUsers[5].Id}, &result), convey.ShouldBeNil)
+
+			convey.Convey("Then result should be equal to testUsers[5]", func() {
+				convey.So(result, convey.ShouldResemble, testUsers[5])
+			})
+		})
+		convey.Convey("When get user with query gender:Female", func() {
+			var result TestUser
+			convey.So(db.GetOne(bson.M{"gender":"Female"}, &result), convey.ShouldBeNil)
+
+			convey.Convey("Then result should be contain the first female user", func() {
+				var expect TestUser
+				for _, u := range testUsers {
+					if u.Gender == "Female" {
+						expect = u
+						break
+					}
+				}
+
+				convey.So(result, convey.ShouldResemble, expect)
+			})
+		})
+	})
+}
+
 ////
 ////	// Get first .langbein@litixsoft.de user (Dennis)
 ////	result = TestUser{}
