@@ -6,5 +6,5 @@ type M map[string]interface{}
 
 type ReqGetData struct {
 	Options lxDb.Options `json:"opts"`
-	Query   interface{}  `json:"query"`
+	Query   M  `json:"query"`
 }
