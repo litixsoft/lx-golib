@@ -106,6 +106,9 @@ func TestMongoDb_Create(t *testing.T) {
 	// Tests
 	db := lxDb.NewMongoBaseDb(conn, DbName, Collection)
 
+	// Create test users
+	setupData(conn)
+
 	convey.Convey("Given 25 test users in test database", t, func() {
 		convey.Convey("When create a correct new user", func() {
 			tu := TestUser{Id: bson.NewObjectId(), Name: "Test User", Gender: "Male", Email: "t.user@gmail.com", IsActive: true}
