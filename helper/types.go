@@ -6,12 +6,12 @@ import (
 
 type M map[string]interface{}
 
-type ReqGetData struct {
+type ReqByQuery struct {
 	Options lxDb.Options `json:"opts, omitempty"`
 	Query   M            `json:"query"`
 }
 
-type ReqData struct {
-	Query M `json:"query"`
-	Data  M `json:"data"`
+type ReqById struct {
+	Id string `json:"id"`
+	Data M `json:"data, omitempty"`
 }
