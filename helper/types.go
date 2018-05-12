@@ -13,5 +13,5 @@ type ReqGetData struct {
 
 type ReqData struct {
 	Query M `json:"query"`
-	Data  M `json:"query"`
+	Data  M `json:"data"`
 }
