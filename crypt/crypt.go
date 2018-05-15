@@ -15,6 +15,11 @@ type ICrypt interface {
 // type for bcrypt mapper
 type Crypt struct{}
 
+// return crypt instance
+func NewCrypt() *Crypt {
+	return &Crypt{}
+}
+
 // GeneratePassword,
 // mapper for create new encrypt password from plain password
 func (c *Crypt) GeneratePassword(plainPwd string) (string, error) {
