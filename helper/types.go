@@ -2,6 +2,7 @@ package lxHelper
 
 import (
 	"github.com/litixsoft/lx-golib/db"
+	"encoding/json"
 )
 
 type M map[string]interface{}
@@ -11,7 +12,15 @@ type ReqByQuery struct {
 	Query   M            `json:"query"`
 }
 
-type ReqById struct {
-	Id string `json:"id"`
-	Data M `json:"data,omitempty"`
+func NewReqByQuery(opts string) (*ReqByQuery, error) {
+	var data ReqByQuery
+
+	if len(opts) > 0 {
+		err := json.Unmarshal([]byte(opts), &data)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &data, nil
 }
