@@ -3,7 +3,6 @@ package lxDb
 import (
 	"errors"
 	"github.com/globalsign/mgo"
-	"github.com/globalsign/mgo/bson"
 )
 
 // Db struct for mongodb
@@ -103,7 +102,7 @@ func (db *mongoBaseDb) Update(query interface{}, data interface{}) error {
 	defer conn.Close()
 
 	// Update one with query in collection
-	return conn.DB(db.name).C(db.collection).Update(query, bson.M{"$set": data})
+	return conn.DB(db.name).C(db.collection).Update(query, data)
 }
 
 // UpdateAll, update all matched entities by query in collection
@@ -113,7 +112,7 @@ func (db *mongoBaseDb) UpdateAll(query interface{}, data interface{}) (ChangeInf
 	defer conn.Close()
 
 	// Update all with query in collection
-	info, err := conn.DB(db.name).C(db.collection).UpdateAll(query, bson.M{"$set": data})
+	info, err := conn.DB(db.name).C(db.collection).UpdateAll(query, data)
 	changeInfo := ChangeInfo{
 		Updated: info.Updated,
 		Removed: info.Removed,
