@@ -5,14 +5,14 @@ import (
 )
 
 // Db struct for mongodb
-type mongoDb struct {
+type MongoDb struct {
 	Conn *mgo.Session
 	Name string
 	Collection string
 }
 
-func NewMongoDb(connection *mgo.Session, dbName, collection string) *mongoDb {
-	return &mongoDb{
+func NewMongoDb(connection *mgo.Session, dbName, collection string) *MongoDb {
+	return &MongoDb{
 		Conn: connection,
 		Name: dbName,
 		Collection: collection,
@@ -20,7 +20,7 @@ func NewMongoDb(connection *mgo.Session, dbName, collection string) *mongoDb {
 }
 
 // Setup create indexes for user collection.
-func (db *mongoDb) Setup(indexes []mgo.Index) error {
+func (db *MongoDb) Setup(indexes []mgo.Index) error {
 	// Copy mongo session (thread safe) and close after function
 	conn := db.Conn.Copy()
 	defer conn.Close()
