@@ -108,9 +108,9 @@ func TestNewMongoDb(t *testing.T) {
 		convey.Convey("When create new mongoDb instance", func() {
 			db := lxDb.NewMongoDb(conn, TestDbName, TestCollection)
 
-			convey.Convey("Then type should be *lxDb.mongoDb", func() {
+			convey.Convey("Then type should be *lxDb.MongoDb", func() {
 				chkT := reflect.TypeOf(db)
-				convey.So(chkT.String(), convey.ShouldEqual, "*lxDb.mongoDb")
+				convey.So(chkT.String(), convey.ShouldEqual, "*lxDb.MongoDb")
 			})
 			convey.Convey("And then test query should equal expected", func() {
 				expected := setupData(conn)
