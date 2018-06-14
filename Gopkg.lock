@@ -110,6 +110,24 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/xeipuuv/gojsonpointer"
+  packages = ["."]
+  revision = "4e3ac2762d5f479393488629ee9370b50873b3a6"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/xeipuuv/gojsonreference"
+  packages = ["."]
+  revision = "bd5ef7bd5415a7ac448318e64f11a24cd21e594b"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/xeipuuv/gojsonschema"
+  packages = ["."]
+  revision = "9ff6d6c47f3f5de55acc6f464d6e3719b02818ae"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/crypto"
   packages = [
     "acme",
@@ -134,6 +152,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "030809c7748fc7e8081b8f5f26f33861aa940d2707944ad5306df10bff92c0f8"
+  inputs-digest = "1f2b2ed139eb8f2b606c3201b4613fbae8d457d1f7d0d3accea643afec908042"
   solver-name = "gps-cdcl"
   solver-version = 1
