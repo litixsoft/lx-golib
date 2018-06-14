@@ -1,23 +1,26 @@
 package lxAuditRepos
 
 import (
+	"github.com/globalsign/mgo"
 	"github.com/litixsoft/lx-golib/audit"
 	"github.com/litixsoft/lx-golib/db"
-	"github.com/globalsign/mgo"
-	"time"
 	"log"
+	"time"
 )
 
+// auditMongo, mongo repository
 type auditMongo struct {
 	serviceName string
 	serviceHost string
-	db *lxDb.MongoDb
+	db          *lxDb.MongoDb
 }
 
-func NewAuditMongo(db *lxDb.MongoDb, serviceName, serviceHost string) lxAudit.IAudit {
-	return &auditMongo{db:db, serviceName:serviceName, serviceHost:serviceHost}
+// NewAuditMongo, return instance of auditMongo repository
+func NewAuditMongo(db *lxDb.MongoDb, serviceName, serviceHost string) IAudit {
+	return &auditMongo{db: db, serviceName: serviceName, serviceHost: serviceHost}
 }
 
+// SetupAudit, set the indexes for mongoDb
 func (repo *auditMongo) SetupAudit() error {
 	// Copy mongo session (thread safe) and close after function
 	conn := repo.db.Conn.Copy()
@@ -29,6 +32,7 @@ func (repo *auditMongo) SetupAudit() error {
 	})
 }
 
+// Log, save log entry to mongoDb
 func (repo *auditMongo) Log(user, message, data interface{}) chan bool {
 	// channel for done
 	done := make(chan bool, 1)
@@ -38,13 +42,14 @@ func (repo *auditMongo) Log(user, message, data interface{}) chan bool {
 		conn := repo.db.Conn.Copy()
 		defer conn.Close()
 
+		// Log entry
 		entry := &lxAudit.AuditModel{
-			TimeStamp:time.Now(),
-			ServiceName:repo.serviceName,
-			ServiceHost:repo.serviceHost,
-			User: user,
-			Message: message,
-			Data:data,
+			TimeStamp:   time.Now(),
+			ServiceName: repo.serviceName,
+			ServiceHost: repo.serviceHost,
+			User:        user,
+			Message:     message,
+			Data:        data,
 		}
 
 		// Insert entry
@@ -52,7 +57,9 @@ func (repo *auditMongo) Log(user, message, data interface{}) chan bool {
 			log.Printf("mongoDb can't insert audit entry, error: %v\n", err)
 		}
 
+		// inform when worker is done
 		done <- true
+
 	}()
 
 	return done

@@ -1,22 +1,22 @@
 package lxAuditRepos_test
 
 import (
+	"github.com/globalsign/mgo/bson"
+	"github.com/litixsoft/lx-golib/audit"
 	"github.com/litixsoft/lx-golib/audit/repos"
 	"github.com/litixsoft/lx-golib/db"
+	"github.com/litixsoft/lx-golib/helper"
 	"github.com/litixsoft/lx-golib/tests/fixtures"
 	"github.com/smartystreets/goconvey/convey"
+	"log"
 	"reflect"
 	"testing"
-	"github.com/litixsoft/lx-golib/audit"
 	"time"
-	"log"
-	"github.com/litixsoft/lx-golib/helper"
-	"github.com/globalsign/mgo/bson"
 )
 
 const (
-	ServiceName = "LxGoLib_Test_Service"
-	ServiceHost = "localhost:3101"
+	ServiceName     = "LxGoLib_Test_Service"
+	ServiceHost     = "localhost:3101"
 	AuditCollection = "audit"
 )
 
@@ -50,19 +50,19 @@ func TestAuditMongo_SetupAudit(t *testing.T) {
 
 	// Test audit entry for create db and check indexes
 	testEntry := lxAudit.AuditModel{
-		TimeStamp:time.Now(),
+		TimeStamp:   time.Now(),
 		ServiceName: ServiceName,
-		ServiceHost:ServiceHost,
-		User: "TestUser",
-		Message: "TestMessage",
+		ServiceHost: ServiceHost,
+		User:        "TestUser",
+		Message:     "TestMessage",
 		Data: struct {
-			Name string
-			Age int
+			Name  string
+			Age   int
 			Login time.Time
 		}{
-			Name:"Test User",
-			Age:44,
-			Login:time.Now(),
+			Name:  "Test User",
+			Age:   44,
+			Login: time.Now(),
 		},
 	}
 	if err := conn.DB(fixtures.TestDbName).C(AuditCollection).Insert(testEntry); err != nil {
@@ -127,7 +127,7 @@ func TestAuditMongo_Log(t *testing.T) {
 
 			convey.Convey("Then audit entry should be found in db", func() {
 				var result lxAudit.AuditModel
-				if err := conn.DB(db.Name).C(db.Collection).Find(lxHelper.M{"user":"test_user"}).One(&result); err != nil {
+				if err := conn.DB(db.Name).C(db.Collection).Find(lxHelper.M{"user": "test_user"}).One(&result); err != nil {
 					log.Fatal(err)
 				}
 
