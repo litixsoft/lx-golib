@@ -9,20 +9,28 @@ import (
 	"path/filepath"
 )
 
-type
-	JSONSchemaStruct struct {
-		root    string
-		schemas map[string]gojsonschema.JSONLoader
-	}
+type IJSONSchema interface {
+	SetSchemaRootDirectory(dirname string) error
+	HasSchema(filename string) bool
+	LoadSchema(filename string) (gojsonschema.JSONLoader, error)
+	ValidateBind(schema string, c echo.Context, s interface{}) (*gojsonschema.Result, error)
+}
 
-var (
-	Loader = &JSONSchemaStruct{
+type JSONSchema struct {
+	root    string
+	schemas map[string]gojsonschema.JSONLoader
+}
+
+var Loader IJSONSchema
+
+func InitJsonSchemaLoader() {
+	Loader = &JSONSchema{
 		root:    "",
 		schemas: make(map[string]gojsonschema.JSONLoader),
 	}
-)
+}
 
-func (self *JSONSchemaStruct) SetSchemaRootDirectory(dirname string) (error) {
+func (js *JSONSchema) SetSchemaRootDirectory(dirname string) error {
 	var err error = nil
 
 	if !filepath.IsAbs(dirname) {
@@ -30,32 +38,32 @@ func (self *JSONSchemaStruct) SetSchemaRootDirectory(dirname string) (error) {
 	}
 
 	if err == nil {
-		self.root = "file:///" + filepath.ToSlash(dirname) + "/"
+		js.root = "file:///" + filepath.ToSlash(dirname) + "/"
 	}
 
 	return err
 }
 
-func (self *JSONSchemaStruct) HasSchema(filename string) (bool) {
-	return self.schemas[filename] != nil
+func (js *JSONSchema) HasSchema(filename string) bool {
+	return js.schemas[filename] != nil
 }
 
-func (self *JSONSchemaStruct) LoadSchema(filename string) (gojsonschema.JSONLoader, error) {
-	if !self.HasSchema(filename) {
-		var jsonURILoader = gojsonschema.NewReferenceLoader(self.root + filename)
+func (js *JSONSchema) LoadSchema(filename string) (gojsonschema.JSONLoader, error) {
+	if !js.HasSchema(filename) {
+		var jsonURILoader = gojsonschema.NewReferenceLoader(js.root + filename)
 
 		if _, err := jsonURILoader.LoadJSON(); err != nil {
 			return nil, err
 		}
 
-		self.schemas[filename] = jsonURILoader
+		js.schemas[filename] = jsonURILoader
 	}
 
-	return self.schemas[filename], nil
+	return js.schemas[filename], nil
 }
 
-func (self *JSONSchemaStruct) ValidateBind(schema string, c echo.Context, s interface{}) (*gojsonschema.Result, error) {
-	schemaLoader, err := self.LoadSchema(schema)
+func (js *JSONSchema) ValidateBind(schema string, c echo.Context, s interface{}) (*gojsonschema.Result, error) {
+	schemaLoader, err := js.LoadSchema(schema)
 
 	if err != nil {
 		return nil, err
