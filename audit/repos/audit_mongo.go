@@ -16,7 +16,7 @@ type auditMongo struct {
 }
 
 // NewAuditMongo, return instance of auditMongo repository
-func NewAuditMongo(db *lxDb.MongoDb, serviceName, serviceHost string) IAudit {
+func NewAuditMongo(db *lxDb.MongoDb, serviceName, serviceHost string) lxAudit.IAudit {
 	return &auditMongo{db: db, serviceName: serviceName, serviceHost: serviceHost}
 }
 

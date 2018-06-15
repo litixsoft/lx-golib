@@ -32,6 +32,7 @@ docker:
 
 mock:
   cmds:
-    - mkdir -p tests/mocks
-    - mockgen -destination=tests/mocks/icrypt.go -package=lxGoLibMocks github.com/litixsoft/lx-golib/crypt ICrypt
-    - mockgen -destination=tests/mocks/ibasedb.go -package=lxGoLibMocks github.com/litixsoft/lx-golib/db IBaseDb
+    - mkdir -p crypt/mocks
+    - mockgen -destination=crypt/mocks/icrypt.go -package=lxCryptMocks github.com/litixsoft/lx-golib/crypt ICrypt
+    - mkdir -p audit/mocks
+    - mockgen -destination=audit/mocks/iaudit.go -package=lxAuditMocks github.com/litixsoft/lx-golib/audit IAudit

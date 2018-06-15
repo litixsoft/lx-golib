@@ -2,6 +2,13 @@ package lxAudit
 
 import "time"
 
+// IAudit, interface for audit repositories
+type IAudit interface {
+	SetupAudit() error
+	Log(user, message, data interface{}) chan bool
+}
+
+
 // AuditModel, model for audit entry
 type AuditModel struct {
 	TimeStamp   time.Time   `json:"timestamp"`
