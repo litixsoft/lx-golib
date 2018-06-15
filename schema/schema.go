@@ -23,6 +23,7 @@ type JSONSchema struct {
 
 var Loader IJSONSchema
 
+// InitJsonSchemaLoader - initiate JSONSchemaLoader globally as Loader
 func InitJsonSchemaLoader() {
 	Loader = &JSONSchema{
 		root:    "",
@@ -30,6 +31,7 @@ func InitJsonSchemaLoader() {
 	}
 }
 
+// SetSchemaRootDirectory - sets default root schema directory
 func (js *JSONSchema) SetSchemaRootDirectory(dirname string) error {
 	var err error = nil
 
@@ -44,10 +46,12 @@ func (js *JSONSchema) SetSchemaRootDirectory(dirname string) error {
 	return err
 }
 
+// HasSchema - checks, if schema already loaded
 func (js *JSONSchema) HasSchema(filename string) bool {
 	return js.schemas[filename] != nil
 }
 
+// LoadSchema - loads a schema and holds it, return schema or error
 func (js *JSONSchema) LoadSchema(filename string) (gojsonschema.JSONLoader, error) {
 	if !js.HasSchema(filename) {
 		var jsonURILoader = gojsonschema.NewReferenceLoader(js.root + filename)
@@ -62,6 +66,7 @@ func (js *JSONSchema) LoadSchema(filename string) (gojsonschema.JSONLoader, erro
 	return js.schemas[filename], nil
 }
 
+// ValidateBind - validate given c:echo.Context with schema and binds if success to s:interface{} - if schema not loaded func will perform it
 func (js *JSONSchema) ValidateBind(schema string, c echo.Context, s interface{}) (*gojsonschema.Result, error) {
 	schemaLoader, err := js.LoadSchema(schema)
 
