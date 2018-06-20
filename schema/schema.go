@@ -9,11 +9,21 @@ import (
 	"path/filepath"
 )
 
+type JSONValidationErrors struct {
+	Field   string                 `json:"field"`
+	Message string                 `json:"message"`
+	Details map[string]interface{} `json:"details"`
+}
+
+type JSONValidationResult struct {
+	Errors []JSONValidationErrors `json:"errors"`
+}
+
 type IJSONSchema interface {
 	SetSchemaRootDirectory(dirname string) error
 	HasSchema(filename string) bool
 	LoadSchema(filename string) (gojsonschema.JSONLoader, error)
-	ValidateBind(schema string, c echo.Context, s interface{}) (*gojsonschema.Result, error)
+	ValidateBind(schema string, c echo.Context, s interface{}) (*JSONValidationResult, error)
 }
 
 type JSONSchema struct {
@@ -67,7 +77,7 @@ func (js *JSONSchema) LoadSchema(filename string) (gojsonschema.JSONLoader, erro
 }
 
 // ValidateBind - validate given c:echo.Context with schema and binds if success to s:interface{} - if schema not loaded func will perform it
-func (js *JSONSchema) ValidateBind(schema string, c echo.Context, s interface{}) (*gojsonschema.Result, error) {
+func (js *JSONSchema) ValidateBind(schema string, c echo.Context, s interface{}) (*JSONValidationResult, error) {
 	schemaLoader, err := js.LoadSchema(schema)
 
 	if err != nil {
@@ -96,7 +106,27 @@ func (js *JSONSchema) ValidateBind(schema string, c echo.Context, s interface{})
 	documentLoader := gojsonschema.NewBytesLoader(jsonRAWDoc)
 	res, err := gojsonschema.Validate(schemaLoader, documentLoader)
 
-	if s != nil && err == nil && res.Valid() {
+	if err != nil {
+		return nil, err
+	}
+
+	// Is schema valid; then
+	if !res.Valid() {
+		valErrors := res.Errors()
+		valResults := &JSONValidationResult{}
+
+		for i := range valErrors {
+			valResults.Errors = append(valResults.Errors, JSONValidationErrors{
+				Field:   valErrors[i].Field(),
+				Message: valErrors[i].Type(),
+				Details: valErrors[i].Details(),
+			})
+		}
+
+		return valResults, nil
+	}
+
+	if s != nil {
 		// if schema valid; and S given; translate
 		if err = json.Unmarshal(documentLoader.JsonSource().([]byte), s); err != nil {
 			return nil, err
@@ -104,5 +134,5 @@ func (js *JSONSchema) ValidateBind(schema string, c echo.Context, s interface{})
 	}
 
 	// Return result
-	return res, err
+	return nil, nil
 }

@@ -135,9 +135,8 @@ func TestJSONSchemaStruct_ValidateBind(t *testing.T) {
 		c := buildEchoContext(lxHelper.M{"name": "Otto", "login_name": "otto", "email": "otto@otto.com"})
 		res, err := lxSchema.Loader.ValidateBind(SCHEMA_EXISTS_FILENAME, c, nil)
 
-		assert.NotNil(t, res, "no valid result")
+		assert.Nil(t, res, "no valid result")
 		assert.NoError(t, err, "returns error")
-		assert.Equal(t, res.Valid(), true, "schema is invalid")
 	})
 
 	t.Run("validate successfully and map to structure", func(t *testing.T) {
@@ -155,9 +154,8 @@ func TestJSONSchemaStruct_ValidateBind(t *testing.T) {
 		c := buildEchoContext(lxHelper.M{"name": "Otto", "login_name": "otto", "email": "otto@otto.com"})
 		res, err := lxSchema.Loader.ValidateBind(SCHEMA_EXISTS_FILENAME, c, &s)
 
-		assert.NotNil(t, res, "no valid result")
+		assert.Nil(t, res, "no valid result")
 		assert.NoError(t, err, "returns error")
-		assert.Equal(t, res.Valid(), true, "schema is invalid")
 
 		// validate schema
 		assert.Equal(t, s.Name, "Otto", "s.name is invalid")
@@ -182,9 +180,8 @@ func TestJSONSchemaStruct_ValidateBind(t *testing.T) {
 
 		assert.NotNil(t, res, "no valid result")
 		assert.NoError(t, err, "returns error")
-		assert.Equal(t, res.Valid(), false, "schema is invalid")
 
-		var vErrs = res.Errors()
+		var vErrs = res.Errors
 		assert.Equal(t, len(vErrs), 1, "one validation error")
 
 		// validate schema
